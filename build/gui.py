@@ -1,14 +1,14 @@
 from cProfile import label
+from cgitb import text
 from logging import PlaceHolder
+from re import T
 import sys
 import math
 import os
 import tkinter.messagebox as tmsg
 from pathlib import Path
-
-# from tkinter import *
-# Explicit imports to satisfy Flake8
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+from uu import encode
 
 
 OUTPUT_PATH = Path(__file__).parent
@@ -134,10 +134,7 @@ def Transpozycja_encrypt():
     except ValueError:
         warning="Klucz moze zawierac wartosci od 1 do 26"
         tmsg.showwarning("Popraw klucz", warning)  
-            
-        
-
-    
+               
 def Transpozycja_decrypt():
     try:
         key = int(float(entry_2.get()))
@@ -165,7 +162,51 @@ def Transpozycja_decrypt():
     except ValueError:
         warning="Klucz moze zawierac wartosci od 1 do 26"
         tmsg.showwarning("Popraw klucz", warning)  
-        
+
+def b64encode():
+        text = entry_3.get()    
+        table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ '    
+        bins = str()
+        for c in text:
+            bins += '{:0>8}'.format(str(bin(ord(c)))[2:])
+        while len(bins) % 3:
+            bins += '00000000'
+        d = 1
+        for i in range(6, len(bins) + int(len(bins) / 6), 7):
+            bins = bins[:i] + ' ' + bins[i:]
+        bins = bins.split(' ')
+        if '' in bins:
+            bins.remove('')
+        base64 = str()
+        for b in bins:
+            if b == '000000':
+                base64 += '='
+            else:
+                base64 += table[int(b, 2)]
+        canvas.itemconfig(tagOrId=wynik, text= base64)        
+        return base64
+
+def b64decode():
+        text = entry_1.get()    
+        table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ '    
+        bins = str()
+        for c in text:
+            if c == '=':
+                bins += '000000'
+            else:
+                bins += '{:0>6}'.format(str(bin(table.index(c)))[2:])
+        for i in range(8, len(bins) + int(len(bins) / 8), 9):
+            bins = bins[:i] + ' ' + bins[i:]
+        bins = bins.split(' ')
+        if '' in bins:
+            bins.remove('')
+        text = str()
+        for b in bins:
+            if not b == '00000000':
+                text += chr(int(b, 2))
+        canvas.itemconfig(tagOrId=wynik, text= text)        
+        return text
+    
 canvas = Canvas(
     window,
     bg = "#F7EFE5",
@@ -231,7 +272,7 @@ button_4 = Button(
     image=button_image_4,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_4 clicked"),
+    command=b64decode,
     relief="flat"
 )
 button_4.place(
@@ -311,7 +352,7 @@ button_9 = Button(
     image=button_image_9,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_9 clicked"),
+    command=b64encode,
     relief="flat"
 )
 button_9.place(
