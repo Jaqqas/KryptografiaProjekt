@@ -117,30 +117,38 @@ def Transpozycja_encrypt():
     key = int(entry_2.get())
     message = entry_3.get()
     ciphertext = [''] * key
-    for column in range(key):
-        currentIndex = column
-        while currentIndex < len(message):
-            ciphertext[column] += message[currentIndex]
-            currentIndex += key
+    if key > 26 or key == 0:
+        warning="Klucz moze zawierac wartosci od 1 do 26"
+        tmsg.showwarning("Popraw klucz", warning)
+    else:
+        for column in range(key):
+            currentIndex = column
+            while currentIndex < len(message):
+                ciphertext[column] += message[currentIndex]
+                currentIndex += key
     canvas.itemconfig(tagOrId=wynik, text= ''.join(ciphertext))        
     return ''.join(ciphertext)
     
 def Transpozycja_decrypt():
     key = int(entry_2.get())
     message = entry_1.get()
-    numOfColumns = int(math.ceil(len(message) / float(key)))
-    numOfRows = key
-    numOfShadedBoxes = (numOfColumns * numOfRows) - len(message)
-    plaintext = [''] * numOfColumns
-    column = 0
-    row = 0
+    if key > 26 or key == 0:
+        warning="Klucz moze zawierac wartosci od 1 do 26"
+        tmsg.showwarning("Popraw klucz", warning)
+    else:
+        numOfColumns = int(math.ceil(len(message) / float(key)))
+        numOfRows = key
+        numOfShadedBoxes = (numOfColumns * numOfRows) - len(message)
+        plaintext = [''] * numOfColumns
+        column = 0
+        row = 0
 
-    for symbol in message:
-        plaintext[column] += symbol
-        column += 1
-        if (column == numOfColumns) or (column == numOfColumns - 1 and row >= numOfRows - numOfShadedBoxes):
-            column = 0
-            row += 1
+        for symbol in message:
+            plaintext[column] += symbol
+            column += 1
+            if (column == numOfColumns) or (column == numOfColumns - 1 and row >= numOfRows - numOfShadedBoxes):
+                column = 0
+                row += 1
     canvas.itemconfig(tagOrId=wynik, text= ''.join(plaintext))
     return ''.join(plaintext)
 
