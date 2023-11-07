@@ -1,6 +1,7 @@
 from cProfile import label
 from logging import PlaceHolder
 import sys
+import math
 import os
 import tkinter.messagebox as tmsg
 from pathlib import Path
@@ -29,7 +30,7 @@ def CesarEncrypt():
     string = string.upper()
     k = int(entry_2.get())
     
-    ans = ""
+    encrypted_text = ""
     if k > 26 or k == 0:
         warning="Klucz moze zawierac wartosci od 1 do 26"
         tmsg.showwarning("Popraw klucz", warning)
@@ -37,17 +38,17 @@ def CesarEncrypt():
         for i in range(len(string)):
             ch = string[i]
             if ch==" ":
-                ans+=" "
+                encrypted_text+=" "
             elif (ch.isupper()):
-                ans += chr((ord(ch) + k-65) % 26 + 65)
+                encrypted_text += chr((ord(ch) + k-65) % 26 + 65)
             else:
-                ans += chr((ord(ch) + k-97) % 26 + 97)
+                encrypted_text += chr((ord(ch) + k-97) % 26 + 97)
             
-    canvas.itemconfig(tagOrId=wynik, text=ans)
-    return ans
+    canvas.itemconfig(tagOrId=wynik, text=encrypted_text)
+    return encrypted_text
 
 def CesarDecypher():
-    decrypted_message = ""
+    decrypted_text = ""
     string = entry_1.get().strip()
     
     letters="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -62,11 +63,11 @@ def CesarDecypher():
                 position = letters.find(ch)
                 new_pos = (position - k) % 26
                 new_char = letters[new_pos]
-                decrypted_message += new_char
+                decrypted_text += new_char
             else:
-                decrypted_message += ch
-    canvas.itemconfig(tagOrId=wynik, text=decrypted_message)
-    return decrypted_message
+                decrypted_text += ch
+    canvas.itemconfig(tagOrId=wynik, text=decrypted_text)
+    return decrypted_text
 
 def vigenere_encrypt():
     string = entry_3.get()
@@ -112,6 +113,36 @@ def vigenere_decrypt():
     canvas.itemconfig(tagOrId=wynik, text=decrypted_text)
     return decrypted_text
 
+def Transpozycja_encrypt():
+    key = int(entry_2.get())
+    message = entry_3.get()
+    ciphertext = [''] * key
+    for column in range(key):
+        currentIndex = column
+        while currentIndex < len(message):
+            ciphertext[column] += message[currentIndex]
+            currentIndex += key
+    canvas.itemconfig(tagOrId=wynik, text= ''.join(ciphertext))        
+    return ''.join(ciphertext)
+    
+def Transpozycja_decrypt():
+    key = int(entry_2.get())
+    message = entry_1.get()
+    numOfColumns = int(math.ceil(len(message) / float(key)))
+    numOfRows = key
+    numOfShadedBoxes = (numOfColumns * numOfRows) - len(message)
+    plaintext = [''] * numOfColumns
+    column = 0
+    row = 0
+
+    for symbol in message:
+        plaintext[column] += symbol
+        column += 1
+        if (column == numOfColumns) or (column == numOfColumns - 1 and row >= numOfRows - numOfShadedBoxes):
+            column = 0
+            row += 1
+    canvas.itemconfig(tagOrId=wynik, text= ''.join(plaintext))
+    return ''.join(plaintext)
 
 canvas = Canvas(
     window,
@@ -162,7 +193,7 @@ button_3 = Button(
     image=button_image_3,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_3 clicked"),
+    command=Transpozycja_decrypt,
     relief="flat"
 )
 button_3.place(
@@ -242,7 +273,7 @@ button_8 = Button(
     image=button_image_8,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_8 clicked"),
+    command=Transpozycja_encrypt,
     relief="flat"
 )
 button_8.place(
@@ -403,5 +434,7 @@ wynik = canvas.create_text(
     fill="#7743DB",
     font=("Inter Bold", 24 * -1)
 )
+
+
 window.resizable(False, False)
 window.mainloop()
